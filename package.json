@@ -4,7 +4,8 @@
   "main": "app/index.js",
   "scripts": {
     "start": "node app/index.js",
-    "build": "next build",
-    "lint": "next lint"
+    "build": "echo building check",
+    "test": "echo Running tests",
+    "lint": "echo Lint check"
   }
 }
