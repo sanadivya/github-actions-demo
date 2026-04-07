@@ -6,16 +6,28 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Building project"
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: build command
+        run: npm run build
 
   lint:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Linting code"
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: lint command
+        run: npm run lint
 
   test:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Running tests"
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        
+      - name: test command
+        run: npm run test
 
 # no needs
