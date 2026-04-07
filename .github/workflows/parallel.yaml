@@ -1,0 +1,21 @@
+name: Parallel Jobs Example
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Building project"
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Linting code"
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Running tests"
+
+# no needs
