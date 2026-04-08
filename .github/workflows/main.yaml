@@ -4,7 +4,7 @@ on: push
 
 jobs:
   call-build:
-    uses: ./build.yaml
+    uses: ./.github/workflows/build.yaml
     with:
       node-version: "20"
 
