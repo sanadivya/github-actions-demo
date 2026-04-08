@@ -1,0 +1,15 @@
+name: Main Workflow
+
+on: push
+
+jobs:
+  call-build:
+    uses: ./build.yml
+    with:
+      node-version: "20"
+
+# main.yml
+#    ↓
+# calls
+#    ↓
+# build.yml
