@@ -1,0 +1,80 @@
+# .github/workflows/deploy.yml
+name: Deploy to Cloud Run
+
+on:
+  workflow_run:
+    workflows: ["Build Docker Image"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    # Only run if build succeeded
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      # 1. Checkout code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Authenticate with GCP
+      - name: Authenticate to GCP
+        run: |
+          echo "${{ secrets.GCP_SA_KEY }}" > key.json
+          gcloud auth activate-service-account --key-file=key.json
+          gcloud config set project ${{ secrets.GCP_PROJECT }}
+
+      # 3. Deploy to Cloud Run
+      - name: Deploy to Cloud Run
+        id: deploy
+        run: |
+          echo "Deploying to Cloud Run..."
+          gcloud run deploy my-service \
+            --image gcr.io/${{ secrets.GCP_PROJECT }}/my-app \
+            --region asia-south1 \
+            --platform managed \
+            --quiet
+
+      # 4. Create GitHub Deployment (IMPORTANT)
+      - name: Create GitHub Deployment
+        id: create_deployment
+        run: |
+          RESPONSE=$(curl -s -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/deployments \
+            -d '{
+              "ref": "${{ github.ref }}",
+              "environment": "staging",
+              "auto_merge": false
+            }')
+
+          echo "DEPLOYMENT_ID=$(echo $RESPONSE | jq -r .id)" >> $GITHUB_ENV
+
+      # 5. Update Deployment Status → success
+      - name: Set Deployment Status Success
+        if: success()
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/deployments/${{ env.DEPLOYMENT_ID }}/statuses \
+            -d '{
+              "state": "success",
+              "environment": "staging"
+            }'
+
+      # 6. Update Deployment Status → failure
+      - name: Set Deployment Status Failure
+        if: failure()
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/deployments/${{ env.DEPLOYMENT_ID }}/statuses \
+            -d '{
+              "state": "failure",
+              "environment": "staging"
+            }'

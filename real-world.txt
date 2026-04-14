@@ -1,0 +1,80 @@
+🔥 What This Workflow Does
+Step-by-step:
+1️⃣ Trigger
+  Runs after Build workflow completes (workflow_run)
+2️⃣ Deploy 
+  Uses gcloud run deploy (your existing setup ✅)
+3️⃣ Create GitHub Deployment
+  This is the missing piece most people forget
+  Triggers:
+   deployment event
+4️⃣ Set Deployment Status
+  Sends:
+   success OR failure
+  Triggers:
+   deployment_status event
+🔹 Now Your Notification Workflow Works
+on:
+  deployment_status:
+
+👉 This will now run automatically 🎉
+
+
+🧠 Full Pipeline (Final Understanding)
+Jenkins
+   ↓
+repository_dispatch
+   ↓
+Build Workflow
+   ↓
+workflow_run
+   ↓
+Deploy Workflow (this file)
+   ↓
+Create Deployment (API)
+   ↓
+deployment event
+   ↓
+Update Status (success/failure)
+   ↓
+deployment_status event
+   ↓
+Notification Workflow (Slack/Teams)
+
+⚠️ Important Notes (Very Useful)
+✅ 1. GITHUB_TOKEN is enough
+    No need for personal token (in most cases)
+
+✅ 2. Need jq installed
+    Ubuntu runner already has it ✔️
+
+✅ 3. Environment naming matters
+    "environment": "staging"
+
+👉 You can later use:
+staging
+production
+
+✅ 4. You can add environment protection
+
+GitHub → Settings → Environments
+
+🚀 Optional Upgrade (Recommended for YOU)
+
+Since you're already using:
+
+Docker
+Cloud Run
+Secret Manager
+
+👉 You can enhance:
+
+✔ Add URL in deployment status
+"environment_url": "https://your-app-url"
+✔ Send MS Teams notification
+
+Inside notification workflow:
+
+curl -H "Content-Type: application/json" \
+  -d '{"text": "Deployment successful"}' \
+  <TEAMS_WEBHOOK_URL>
