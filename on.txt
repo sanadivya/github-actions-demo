@@ -1,0 +1,49 @@
+on:
+    push  →  when code is pushed
+    pull_request  →  when PR is opened/updated
+    issues  →  when issues are created/edited
+    release  →  when a release is published
+    workflow_dispatch  →  manual trigger
+    workflow_call  →  reusable workflows
+    repository_dispatch  →  Trigger from outside github
+    workflow_run → chain workflows inside github
+
+
+
+  on: [push,pull_request]
+  on:
+    push:
+      branches: [main]
+    pull_request:
+      branches: [dev]
+  on:
+    schedule:
+      - cron: "*/5 * * * *"
+  on:
+    workflow_dispatch:
+      inputs:
+      env:
+        description: "Environment"
+        required: true
+  on:
+    workflow_call:
+
+  on:
+    push:
+      branches: [main]
+  on:
+    push:
+      paths:
+        - "src/**"
+  on:
+    push:
+      tags:
+        - "v*"
+  
+  on:
+    issues:
+      types: [opened, closed]
+  on:
+    deployment:
+  on:
+    deployment_status:
